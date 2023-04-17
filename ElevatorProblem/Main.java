@@ -1,55 +1,94 @@
 import java.util.Scanner;
 
 public class Main {
-
-
-    public static int getFloor(Scanner scan) {
+    // Instantiate scanner object
+    static Scanner scan = new Scanner(System.in);
+    
+    // Method/Function for getting user input (floor numbers from 1-7);
+    public static int getFloorNumber() {
         int floorNumber = scan.nextInt();
         // Check if user input is appropriate (from floor 1-7 only)
         if (floorNumber > 7 || floorNumber < 1) {
-            System.out.println("Error! Please input floor ranging from 1 - 7 only!");
-            System.exit(); // Exit the program
+            System.out.println("Error! Please input a floor number ranging from 1 - 7 only!");
+            System.exit(0); // Exit the program
         }
         return floorNumber;
     }
 
-    public static void main(String args[]) {
-        // Instantiate scanner object
-        Scanner scan = new Scanner(System.in);
-        // Get current floor of user
-        System.out.print("Which floor are you now? (1-7): ");
-        int currentFloor = getFloor(scan);
-        // Get floor number of elevator 1
-        System.out.print("Input designated floor # of Elevator 1 (LEFT): ");
-        int elevatorOne = getFloor(scan);
-        // Get floor number of elevator 2
-        System.out.print("Input designated floor # of Elevator 2 (RIGHT): ");
-        int elevatorTwo = getFloor(scan);
-        System.out.println(elevatorTwo);
-        // Check if user input is appropriate (from floor 1-7 only)
-        // if (elevatorOne > 7 || elevatorOne < 1) {
-        //     System.out.println("Error! Please input floor ranging from 1 - 7 only!");
-        //     return;
-        // }
+    public static void main(String args[]) throws InterruptedException {
+        // Global string variable for getting the user direction if 'UP', 'DOWN', or 'UP and DOWN'
+        String userDirection;
 
-        // Get floor number of elevator 2
-        // System.out.print("Input designated floor # of Elevator 2 (RIGHT): ");
-        // int elevatorTwo = scan.nextInt();
-        // System.out.println(elevatorTwo);
+        // STEP 1: Get the current floor of the user, and the direction if 'UP', 'DOWN', or 'UP and DOWN' the floor number of elevator 1, and elevator 2
+        System.out.print("Which floor are you located now? (1-7): ");
+        int currentFloor = getFloorNumber();
 
-        // // Check if user input is appropriate (from floor 1-7 only)
-        // if (elevatorTwo > 7 || elevatorTwo < 1) {
-        //     System.out.println("Error! Please input floor ranging from 1 - 7 only!");
-        //     return;
-        // }
-    
-        System.out.print("Enter decision (UP/DOWN or UP and DOWN): ");
+        scan.nextLine(); // Clear input after getting string
         // Get user input if he/she wants to go UP/DOWN or UP and DOWN 
-        String userDecision = scan.next();
-        System.out.println(" Current floor: " + currentFloor);
-        System.out.println(" Elevator 1: " + elevatorOne);
-        System.out.println(" Elevator 2: " + elevatorTwo);
-        System.out.println(userDecision);
+        if (currentFloor == 7) {
+            // If the current floor is the 7th floor, the user is forced to go down since there is no 8th floor
+            userDirection = "DOWN";
+            System.out.println("Attempting to go down using the elevator...");   
+        } else if (currentFloor == 1) {
+            // If the current floor is the 1st floor, the user is forced to go up since there is no 0th floor
+            userDirection = "UP";
+            System.out.println("Attempting to go up using the elevator...");
+        } else {
+            System.out.print("Do you want to go up or down the elevator? ('UP', 'DOWN' or 'UP and DOWN'): ");
+            userDirection = scan.nextLine();
+        }
+        
+        // Get floor number of elevator 1
+        System.out.print("Input designated floor # of ELEVATOR (1) - LEFT: ");
+        int elevatorOne = getFloorNumber();
+        // Get floor number of elevator 2
+        System.out.print("Input designated floor # of ELEVATOR (2) - RIGHT: ");
+        int elevatorTwo = getFloorNumber();
+        
+        // STEP 2: Use algorithm process explained below
+        /*
+         * EXPLANATION - Get the lowest difference between elevators
+         * Basically, we take the current floor number, then subtract it to elevator one's floor number and take its ABSOLUTE VALUE
+         * because in some cases a negative value might arise... This process is also done to elevator two, check code below
+        */
+        int numOfFloorsForElevatorOne = Math.abs(currentFloor - elevatorOne);
+        int numOfFloorsForElevatorTwo = Math.abs(currentFloor - elevatorTwo);
+        /*
+         * EXPLANATION: - Get time elapsed for each elevator to reach the current floor
+         * To get the time it needs for an elevator to reach the current floor, simply multiply its number of floors needed by 2
+         * because an elevator will spend 2 seconds per floor, additionally with 1 second for opening and closing the door if it 
+         * is on the current floor
+         */
+        // For instance if Elevator 1 is on the 5th floor and the current floor is at the 3rd floor the number of floors it takes is 2 which means it will take 4 seconds to reach the current floor
+        // both variables will store time in seconds
+        int timeElapsedForElevatorOne = (numOfFloorsForElevatorOne * 2); 
+        int timeElapsedForElevatorTwo = (numOfFloorsForElevatorTwo * 2);
+            
+        // STEP 3: Show output properly 
+        /*
+         * The if condition below handles the ff. possibility:
+         *  - If both elevators are on the same floor, hence elevator 2 will always be prioritized
+         *  - If elevator 2 is nearer to the current floor of the user
+         * Meanwhile, the else condition handles elevator 1 if it is near to the current floor of the user
+         */
+        if (numOfFloorsForElevatorOne == numOfFloorsForElevatorTwo || numOfFloorsForElevatorOne > numOfFloorsForElevatorTwo) {
+            moveElevator(2, elevatorTwo, currentFloor, timeElapsedForElevatorTwo);
+        } else if (numOfFloorsForElevatorOne < numOfFloorsForElevatorTwo) {
+            moveElevator(1, elevatorOne, currentFloor, timeElapsedForElevatorOne);
+        }
     } 
     
+    // Method/Function for showing the elevator and where it's heading, handles the delay as well...
+    public static void moveElevator(int elevatorNumber, int startingFloor, int targetFloor, int timeElapsed) throws InterruptedException {
+        System.out.println("\n[START] ELEVATOR (" + elevatorNumber + ") will now arrive at floor " + targetFloor + "\n");
+        for (int i = startingFloor; i != targetFloor; i += (startingFloor < targetFloor) ? 1 : -1) {
+            System.out.println("[MOVING] ELEVATOR (" + elevatorNumber + ") is currently now at " + i);
+            Thread.sleep(2000);
+        }
+        System.out.println("[STATIONARY] ELEVATOR (" + elevatorNumber + ") has arrived at floor " + targetFloor + " (took " + timeElapsed + " seconds)\n");
+        System.out.println("[OPENING/CLOSING DOOR] ELEVATOR (" + elevatorNumber + ") is now preparing to leave...\n");
+        Thread.sleep(1000); // Sleep for 1 second for opening/closing the door
+        System.out.println("[END] ELEVATOR (" + elevatorNumber + ") has left...\n");
+    }
+
 }
