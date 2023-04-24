@@ -79,7 +79,8 @@ public class Main {
             int targetFloor, 
             int timeElapsedForElevatorOne, 
             int timeElapsedForElevatorTwo, 
-            boolean areElevatorsOnSameFloor) throws InterruptedException {
+            boolean areElevatorsOnSameFloor) throws InterruptedException 
+    {
         if (areElevatorsOnSameFloor) {
             System.out.println("\n[START] ELEVATOR (1) preparing to arrive at floor " + targetFloor);
             System.out.println("[START] ELEVATOR (2) preparing to arrive at floor " + targetFloor + "\n");

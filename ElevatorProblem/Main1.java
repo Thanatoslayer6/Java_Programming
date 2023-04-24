@@ -1,4 +1,3 @@
-
 import java.util.Scanner;
 
 public class Main1 {
@@ -16,7 +15,7 @@ public class Main1 {
         return floorNumber;
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws InterruptedException {
         // Global string variable for getting the user direction if 'UP', 'DOWN', or 'UP and DOWN'
         String userDirection;
 
@@ -53,16 +52,67 @@ public class Main1 {
         int timeElapsedForElevatorTwo = (numOfFloorsForElevatorTwo * 2);
 
         // STEP 3: Show output properly 
-        // if (numOfFloorsForElevatorOne == numOfFloorsForElevatorTwo) {
-        //     moveElevators(elevatorOne, elevatorTwo, currentFloor, timeElapsedForElevatorOne, timeElapsedForElevatorTwo, true);
-        // } else if (numOfFloorsForElevatorOne > numOfFloorsForElevatorTwo || numOfFloorsForElevatorOne < numOfFloorsForElevatorTwo) {
-        //     moveElevators(elevatorOne, elevatorTwo, currentFloor, timeElapsedForElevatorOne, timeElapsedForElevatorTwo, false);
-        // } 
-        // If both elevators are on the same floor then
-        if (elevatorOne == elevatorTwo && userDirection) {
-
+        if (userDirection.equalsIgnoreCase("UP and DOWN")) {
+            // Both elevators should move
+            moveBothElevators(elevatorOne, elevatorTwo, currentFloor, timeElapsedForElevatorOne, timeElapsedForElevatorTwo);
+        } else if (userDirection.equalsIgnoreCase("UP") || userDirection.equalsIgnoreCase("DOWN")) {
+            // Only one elevator should move, in this case the nearest elevator, if both elevators have the same distance then the right is prioritized
+            if (numOfFloorsForElevatorOne < numOfFloorsForElevatorTwo) { // ELEVATOR 1 should move
+                moveNearestElevator(1, elevatorOne, currentFloor, timeElapsedForElevatorOne);
+            } else if (numOfFloorsForElevatorOne == numOfFloorsForElevatorTwo || numOfFloorsForElevatorOne > numOfFloorsForElevatorTwo) { // ELEVATOR 2 should move
+                moveNearestElevator(2, elevatorTwo, currentFloor, timeElapsedForElevatorTwo);
+            }
         }
     }
+
     // Method/Function for showing the elevator and where it's heading, handles the delay as well...
+    public static void moveBothElevators(int elevatorOne, int elevatorTwo, int targetFloor, int timeElapsedForElevatorOne, int timeElapsedForElevatorTwo) throws InterruptedException {
+        boolean elevatorOneHasArrived = false;
+        boolean elevatorTwoHasArrived = false;
+        int i = elevatorOne, j = elevatorTwo;
+        System.out.println("\n[START] ELEVATOR (1) preparing to arrive at floor " + targetFloor);
+        System.out.println("[START] ELEVATOR (2) preparing to arrive at floor " + targetFloor + "\n");
+        while (i != targetFloor || j != targetFloor) {
+            if (i != targetFloor) {
+                System.out.println("[MOVING] ELEVATOR (1) is currently now at " + i);
+                i += ((elevatorOne < targetFloor) ? 1 : -1); 
+            }
+
+            if (j != targetFloor){
+                System.out.println("[MOVING] ELEVATOR (2) is currently now at " + j);
+                j += ((elevatorTwo < targetFloor) ? 1 : -1);
+            }
+
+            Thread.sleep(2000); // Wait for 2 seconds after ascending/descending
+
+            if (i == targetFloor && elevatorOneHasArrived == false) {
+                System.out.println("[STATIONARY] ELEVATOR (1) has arrived at floor " + targetFloor + " (took " + timeElapsedForElevatorOne + " seconds)");
+                elevatorOneHasArrived = true;
+            }
+
+            if (j == targetFloor && elevatorTwoHasArrived == false) {
+                System.out.println("[STATIONARY] ELEVATOR (2) has arrived at floor " + targetFloor + " (took " + timeElapsedForElevatorTwo + " seconds)");
+                elevatorTwoHasArrived = true;
+            }
+        }
+        System.out.println("\n~~~ Both elevators are now on the current floor ~~~");
+        System.out.println("[OPENING/CLOSING DOOR] ELEVATOR (1) is now preparing to leave...");
+        System.out.println("[OPENING/CLOSING DOOR] ELEVATOR (2) is now preparing to leave...");
+        Thread.sleep(1000); // Sleep for 1 second for opening/closing the door
+        System.out.println("\n[END] ELEVATOR (1) has left...");
+        System.out.println("[END] ELEVATOR (2) has left...");
+    }
+
+    public static void moveNearestElevator(int elevatorNumber, int startingFloor, int targetFloor, int timeElapsed) throws InterruptedException {
+        System.out.println("\n[START] ELEVATOR (" + elevatorNumber + ") preparing to arrive at floor " + targetFloor + "\n");
+        for (int i = startingFloor; i != targetFloor; i += (startingFloor < targetFloor) ? 1 : -1) {
+            System.out.println("[MOVING] ELEVATOR (" + elevatorNumber + ") is currently now at " + i);
+            Thread.sleep(2000);
+        }
+        System.out.println("[STATIONARY] ELEVATOR (" + elevatorNumber + ") has arrived at floor " + targetFloor + " (took " + timeElapsed + " seconds)");
+        System.out.println("\n[OPENING/CLOSING DOOR] ELEVATOR (" + elevatorNumber + ") is now preparing to leave...");
+        Thread.sleep(1000); // Sleep for 1 second for opening/closing the door
+        System.out.println("\n[END] ELEVATOR (" + elevatorNumber + ") has left...");
+    }
 }
 
